@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Demo</title>    
+    </head>
+    <body>
+   
+    <h1>Version: {{ version }}<h1>
+
+    <table>
+        {% for k, v in environ.items() %}
+        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+        {% endfor %}
+    </table>
+     
+    </body>
+</html>
