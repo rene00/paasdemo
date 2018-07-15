@@ -5,13 +5,23 @@
     </head>
     <body>
    
-    <h1>Version: {{ version }}<h1>
+    <h1>Version: {{ version }}</h1>
 
+    <h2>Environment Variables</h2>
     <table>
         {% for k, v in environ.items() %}
         <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
         {% endfor %}
     </table>
+
+    {% if dbconnected %}
+    <h2>MySQL UserAgent table</h2>
+    <table>
+        {% for ua in useragents %}
+        <tr><td>{{ ua.date }}</td><td>{{ ua.useragent }}</td></tr>
+        {% endfor %}
+    </table>
+    {% endif %}
      
     </body>
 </html>
