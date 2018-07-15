@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-import sqlalchemy
 from sqlalchemy_utils import database_exists, create_database
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -23,6 +22,7 @@ db = SQLAlchemy(app)
 
 def dbconnect():
     engine = db.engine
+    connected = False
     try:
         if not database_exists(engine.url):
             create_database(engine.url)
