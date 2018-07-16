@@ -46,19 +46,21 @@ def s3_put(bucket, key, body):
                 Key=key
             )['ResponseMetadata']
         except ClientError:
-            response = {}
+            pass
     return response
 
 
 def sqs_send_message(queue_name, message):
-    response = None
+    response = {}
     if queue_name:
         client = boto3.client('sqs', region_name=REGION)
-        url = client.get_queue_url(QueueName=queue_name)['QueueUrl']
-        if url:
+        try:
+            url = client.get_queue_url(QueueName=queue_name)['QueueUrl']
             response = client.send_message(
                 QueueUrl=url, MessageBody=message
             )['ResponseMetadata']
+        except ClientError:
+            pass
     return response
 
 
