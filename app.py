@@ -97,7 +97,7 @@ def home():
         ua = UserAgent(useragent=useragent)
         db.session.add(ua)
         db.session.commit()
-        useragents = UserAgent.query.order_by(UserAgent.id.desc()).all()[0:30]
+        useragents = UserAgent.query.order_by(UserAgent.id.desc()).all()[0:10]
 
     s3 = s3_put(
         bucket=os.environ.get('S3_BUCKET_MYBUCKET1'),
