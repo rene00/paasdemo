@@ -8,6 +8,8 @@ from sqlalchemy.exc import OperationalError
 import boto3
 import time
 from botocore.exceptions import ClientError
+import requests
+import json
 
 version = 1
 
@@ -23,6 +25,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 db = SQLAlchemy(app)
 
 
+def get_region():
+    """Query metadata service and retrieve region."""
+    url = 'http://169.254.169.254/latest/dynamic/instance-identity/document'
+    resp = requests.get(url)
+    return resp.json()['region']
+
+
+REGION = get_region()
+
+
 def s3_put(bucket, key, body):
     response = {}
     if bucket:
@@ -35,6 +47,18 @@ def s3_put(bucket, key, body):
             )['ResponseMetadata']
         except ClientError:
             response = {}
+    return response
+
+
+def sqs_send_message(queue_name, message):
+    response = None
+    if queue_name:
+        client = boto3.client('sqs', region_name=REGION)
+        url = client.get_queue_url(QueueName=queue_name)['QueueUrl']
+        if url:
+            response = client.send_message(
+                QueueUrl=url, MessageBody=message
+            )['ResponseMetadata']
     return response
 
 
@@ -74,15 +98,20 @@ def home():
         useragents = UserAgent.query.order_by(UserAgent.id.desc()).all()[0:30]
 
     s3 = s3_put(
-        bucket=os.environ.get('S3_BUCKET'),
+        bucket=os.environ.get('S3_BUCKET_MYBUCKET1'),
         key=str(((time.time() + 0.5) * 1000)),
         body=useragent
+    )
+
+    sqs = sqs_send_message(
+        queue_name=os.environ.get('SQS_QUEUE_NAME_MYQUEUE1'),
+        message=json.dumps({'useragent': useragent})
     )
 
     return render_template(
         'home.html', version=version, environ=os.environ,
         useragents=useragents, dbconnected=dbconnected,
-        s3=s3
+        s3=s3, sqs=sqs
     )
 
 

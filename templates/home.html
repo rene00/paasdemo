@@ -31,6 +31,15 @@
         {% endfor %}
     </table>
     {% endif %}
+
+    {% if sqs %}
+    <h2>SQS response</h2>
+    <table>
+        {% for k, v in sqs.items() %}
+        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+        {% endfor %}
+    </table>
+    {% endif %}
      
     </body>
 </html>

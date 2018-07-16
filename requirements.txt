@@ -4,3 +4,4 @@ sqlalchemy-utils
 pytz
 pymysql
 boto3
+requests
