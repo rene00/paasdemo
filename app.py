@@ -5,8 +5,11 @@ from datetime import datetime
 import os
 import pytz
 from sqlalchemy.exc import OperationalError
+import boto3
+import time
+from botocore.exceptions import ClientError
 
-version = 1
+version = 2
 
 mysql_username = os.environ.get('MYSQL_USERNAME')
 mysql_password = os.environ.get('MYSQL_PASSWORD')
@@ -18,6 +21,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     format(mysql_username, mysql_password, mysql_hostname)
 )
 db = SQLAlchemy(app)
+
+
+def s3_put(bucket, key, body):
+    response = {}
+    if bucket:
+        client = boto3.client('s3')
+        try:
+            response = client.put_object(
+                Body=body,
+                Bucket=bucket,
+                Key=key
+            )['ResponseMetadata']
+        except ClientError:
+            response = {}
+    return response
 
 
 def dbconnect():
@@ -47,16 +65,24 @@ class UserAgent(db.Model):
 @app.route('/')
 def home():
     dbconnected = dbconnect()
+    useragent = request.headers.get('User-Agent')
     useragents = []
     if dbconnected:
-        ua = UserAgent(useragent=request.headers.get('User-Agent'))
+        ua = UserAgent(useragent=useragent)
         db.session.add(ua)
         db.session.commit()
         useragents = UserAgent.query.order_by(UserAgent.id.desc()).all()[0:30]
 
+    s3 = s3_put(
+        bucket=os.environ.get('S3_BUCKET'),
+        key=str(((time.time() + 0.5) * 1000)),
+        body=useragent
+    )
+
     return render_template(
         'home.html', version=version, environ=os.environ,
-        useragents=useragents, dbconnected=dbconnected
+        useragents=useragents, dbconnected=dbconnected,
+        s3=s3
     )
 
 

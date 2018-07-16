@@ -22,6 +22,15 @@
         {% endfor %}
     </table>
     {% endif %}
+
+    {% if s3 %}
+    <h2>S3 response</h2>
+    <table>
+        {% for k, v in s3.items() %}
+        <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+        {% endfor %}
+    </table>
+    {% endif %}
      
     </body>
 </html>

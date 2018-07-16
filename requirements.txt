@@ -3,3 +3,4 @@ flask_sqlalchemy
 sqlalchemy-utils
 pytz
 pymysql
+boto3
