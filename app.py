@@ -9,7 +9,7 @@ import boto3
 import time
 from botocore.exceptions import ClientError
 
-version = 2
+version = 1
 
 mysql_username = os.environ.get('MYSQL_USERNAME')
 mysql_password = os.environ.get('MYSQL_PASSWORD')
