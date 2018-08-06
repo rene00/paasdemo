@@ -10,8 +10,11 @@ import time
 from botocore.exceptions import ClientError
 import requests
 import json
+import logging
 
 version = 1
+
+service = os.environ.get('SERVICE')
 
 mysql_username = os.environ.get('MYSQL_USERNAME')
 mysql_password = os.environ.get('MYSQL_PASSWORD')
@@ -24,12 +27,28 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 )
 db = SQLAlchemy(app)
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.getLogger('botocore').setLevel(logging.WARN)
+logging.getLogger('boto3').setLevel(logging.WARN)
+logging.getLogger('requests').setLevel(logging.WARN)
+logging.getLogger('sqlalchemy').setLevel(logging.WARN)
+logger = logging.getLogger(__name__)
+
 
 def get_region():
     """Query metadata service and retrieve region."""
     url = 'http://169.254.169.254/latest/dynamic/instance-identity/document'
-    resp = requests.get(url)
-    return resp.json()['region']
+    region = None
+    try:
+        resp = requests.get(url, timeout=0.5)
+        resp.raise_for_status()
+        region = resp.json()['region']
+    except (requests.exceptions.HTTPError,
+            requests.exceptions.ReadTimeout,
+            KeyError):
+        logger.exception('Trying to access {0} failed'.format(url))
+    finally:
+        return region
 
 
 REGION = get_region()
@@ -113,7 +132,7 @@ def home():
     return render_template(
         'home.html', version=version, environ=os.environ,
         useragents=useragents, dbconnected=dbconnected,
-        s3=s3, sqs=sqs
+        s3=s3, sqs=sqs, service=service
     )
 
 

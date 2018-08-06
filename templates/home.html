@@ -7,6 +7,10 @@
    
     <h1>Version: {{ version }}</h1>
 
+    {% if service %}
+    <h1>Service: {{ service }}</h1>
+    {% endif %}
+
     <h2>Environment Variables</h2>
     <table>
         {% for k, v in environ.items() %}
