@@ -11,6 +11,8 @@
     <h1>Service: {{ service }}</h1>
     {% endif %}
 
+    <h1>Path: {{ path }}</h1>
+
     <h2>Environment Variables</h2>
     <table>
         {% for k, v in environ.items() %}

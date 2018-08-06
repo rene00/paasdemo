@@ -107,11 +107,13 @@ class UserAgent(db.Model):
     date = db.Column(db.DateTime, default=utcnow)
 
 
-@app.route('/')
-def home():
+@app.route('/', defaults={'path': None})
+@app.route('/<path:path>')
+def home(path):
     dbconnected = dbconnect()
     useragent = request.headers.get('User-Agent')
     useragents = []
+    path = path
     if dbconnected:
         ua = UserAgent(useragent=useragent)
         db.session.add(ua)
@@ -132,7 +134,7 @@ def home():
     return render_template(
         'home.html', version=version, environ=os.environ,
         useragents=useragents, dbconnected=dbconnected,
-        s3=s3, sqs=sqs, service=service
+        s3=s3, sqs=sqs, service=service, path=path
     )
 
 
