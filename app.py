@@ -12,7 +12,7 @@ import requests
 import json
 import logging
 
-version = 1
+version = 2
 
 service = os.environ.get('SERVICE')
 
