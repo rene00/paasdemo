@@ -12,7 +12,7 @@ import requests
 import json
 import logging
 
-version = 1
+version = 2
 
 service = os.environ.get('SERVICE')
 
@@ -134,7 +134,7 @@ def home(path):
     return render_template(
         'home.html', version=version, environ=os.environ,
         useragents=useragents, dbconnected=dbconnected,
-        s3=s3, sqs=sqs, service=service, path=path
+        s3=s3, sqs=sqs, service=service, path=path, region=REGION
     )
 
 
